@@ -1,3 +1,4 @@
+# Credit to @AviSoori1x for this script
 import base64
 import io
 import pandas as pd
@@ -8,8 +9,8 @@ import torch
 from vlm.vlm import VisionLanguageModel
 
 
-batch_size = 16  # how many independent sequences will we process in parallel?
-block_size = 32  # what is the maximum context length for predictions?
+batch_size = 16 
+block_size = 32  
 max_iters = 100
 eval_interval = 10
 learning_rate = 1e-3
@@ -27,16 +28,13 @@ patch_size = 16
 image_embed_dim = 512
 emb_dropout = blk_dropout = 0.1
 
-# Ensure every computation happens on the GPU when available
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# To build the encoding and decoding functions we use the tinyshakespear dataset. However for the sake of brevity we do not pretrain the decoder model on it
-# the training function should be able to do it without an issue as well as it could take both images and text
+# Download the tiny-shakespeare dataset and drop it in `input.txt`
 text_path = "./input.txt"
 with open(text_path, "r", encoding="utf-8") as f:
     text = f.read()
 
-# here are all the unique characters that occur in this text
 chars = sorted(list(set(text)))
 # create a mapping from characters to integers
 stoi = {ch: i for i, ch in enumerate(chars)}
@@ -65,9 +63,7 @@ def base64_to_tensor(base64_str, img_size=96):
     return transform(image).unsqueeze(0)  # Add batch dimension
 
 
-# Adjusting the data loader from makemore for multimodal data
 def get_batch(df, batch_size, split="train", img_size=96, val_batch_size=8):
-    # Split data into training and validation sets
     n = int(0.9 * len(df))  # first 90% will be train, rest val
     df_train = df.iloc[:n]
     df_val = df.iloc[n:]
